@@ -1,0 +1,296 @@
+---
+title: "GE461 - Introduction to the Data Science - Project"
+author: 
+  - Berk Büyükdurak - 21301089
+  - İlknur Baş - 21601847
+papersize: a4paper
+output: html_document
+always_allow_html: true
+---
+
+```{r setup, include=FALSE}
+library(magrittr)
+library(tidyverse)
+library(car)
+library(knitr)
+library(kableExtra)
+library(pander)
+library(RSQLite)
+library(gridExtra)
+knitr::opts_chunk$set(echo = TRUE)
+
+options(knitr.kable.NA =".") 
+kable_format <- if (is_html_output()) "html" else "latex"
+options(scipen = 999)
+```
+
+<h3> Connecting the Database </h3>
+```{r}
+con <- dbConnect(SQLite(), "data/dodgers.sqlite")
+
+events <- tbl(con, "events") %>% 
+  collect() %>% 
+  mutate(day_of_week = factor(day_of_week, levels = c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")),
+         month = factor(month, levels = c("APR","MAY","JUN","JUL","AUG","SEP","OCT")),
+         temp = round((temp - 32)*5/9),
+         bobblehead = ifelse(bobblehead=="YES", 1, 0)) # temp is converted from F to C.)
+
+dataSet <- dbReadTable(con, "events")
+
+dbDisconnect(con)
+```
+
+<h3> Exploring the Relation Between Skies - Attend and Bobblehead Promotion </h3>
+```{r}
+skies_attend <- ggplot(dataSet, aes(skies, attend)) +
+  geom_boxplot(aes(fill = skies)) +
+  ggtitle("Relation between Skies - Attend without Bobblehead")
+
+skies_attend
+
+skies_attend_bobble <- ggplot(dataSet, aes(skies, attend)) +
+  geom_boxplot(aes(fill = skies, color = bobblehead)) +
+  ggtitle("Relation Between Skies - Attend with Bobblehead")
+
+skies_attend_bobble
+```
+
+<h3>Exploring the Relation Between Month - Attend and Bobblehead Promotion</h3>
+```{r}
+month_attend <-ggplot(dataSet, aes(month, attend)) +
+  geom_boxplot(aes(fill = month)) +
+  ggtitle("Relation Between Month - Attend without Bobblehead")
+
+month_attend
+
+month_attend_bobblehead <- ggplot(dataSet, aes(month, attend)) +
+  geom_boxplot(aes(fill = month, color = bobblehead)) +
+  ggtitle("Relation Between Month - Attend with Bobblehead")
+
+month_attend_bobblehead
+```
+
+<h3>Exploring the Relation Between Opponent - Attend and Bobblehead Promotion</h3>
+```{r}
+opponent_attend <- ggplot(dataSet, aes(opponent, attend)) +
+  geom_boxplot(aes(fill = opponent)) +
+  ggtitle("Relation Between Opponent - Attend without Bobblehead")
+  
+opponent_attend
+
+opponent_attend_bobblehead <- ggplot(dataSet, aes(opponent, attend))+
+  geom_boxplot(aes(fill = opponent, color = bobblehead)) +
+  ggtitle("Relation Between Opponent - Attend with Bobblehead")
+  
+opponent_attend_bobblehead
+```
+
+<h3>Exploring the Relation Between Fireworks - Attend and Bobblehead Promotion</h3>
+```{r}
+fireworks_attend <- ggplot(dataSet, aes(fireworks, attend)) +
+  geom_boxplot(aes(fill = fireworks)) +
+  ggtitle("Relation Between Fireworks - Attend without Bobblehead")
+
+fireworks_attend
+
+fireworks_attend_bobblehead <- ggplot(dataSet, aes(fireworks, attend)) +
+  geom_boxplot(aes(fill = fireworks, color = bobblehead)) +
+  ggtitle("Relation Between Fireworks - Attend with Bobblehead")
+
+fireworks_attend_bobblehead
+```
+
+<h3>Exploring the Relation Between Shirt - Attend and Bobblehead Promotion</h3>
+```{r}
+shirt_attend <- ggplot(dataSet, aes(shirt, attend)) +
+  geom_boxplot(aes(fill = shirt)) +
+  ggtitle("Relation Between Shirt - Attend without Bobblehead")
+
+shirt_attend
+
+shirt_attend_bobblehead <- ggplot(dataSet, aes(shirt, attend)) +
+  geom_boxplot(aes(fill = shirt, color = bobblehead)) +
+  ggtitle("Relation Between Shirt - Attend with Bobblehead")
+
+shirt_attend_bobblehead
+```
+
+<h3>Exploring the Relation Between Cap - Attend and Bobblehead Promotion</h3>
+```{r}
+cap_attend <- ggplot(dataSet, aes(cap, attend)) +
+  geom_boxplot(aes(fill = cap)) +
+  ggtitle("Relation Between Cap - Attend without Bobblehead")
+
+cap_attend
+
+cap_attend_bobblehead <- ggplot(dataSet, aes(cap, attend)) +
+  geom_boxplot(aes(fill = cap, color = bobblehead)) +
+  ggtitle("Relation Between Cap - Attend with Bobblehead")
+
+cap_attend_bobblehead
+```
+
+<h3>Exploring the Relation Between Day of Week - Attend and Bobblehead Promotion</h3>
+```{r}
+day_of_week_attend <- ggplot(dataSet, aes(day_of_week, attend)) +
+  geom_boxplot(aes(fill = day_of_week)) +
+  ggtitle("Relation Between Day of Week - Attend without Bobblehead")
+
+day_of_week_attend
+
+day_of_week_attend_bobblehead <- ggplot(dataSet, aes(day_of_week, attend)) +
+  geom_boxplot(aes(fill = day_of_week, color = bobblehead)) +
+  ggtitle("Relation Between Day of Week - Attend with Bobblehead")
+
+day_of_week_attend_bobblehead
+```
+
+<h3>Exploring the Relation Between Day&Night - Attend and Bobblehead Promotion</h3>
+```{r}
+day_night_attend <- ggplot(dataSet, aes(day_night, attend)) +
+  geom_boxplot(aes(fill = day_night)) +
+  ggtitle("Relation Between Day&Night - Attend without Bobblehead")
+
+day_night_attend
+
+day_night_attend_bobblehead <- ggplot(dataSet, aes(day_night, attend)) +
+  geom_boxplot(aes(fill = day_night, color = bobblehead)) +
+  ggtitle("Relation Between Day&Night - Attend with Bobblehead")
+
+day_night_attend_bobblehead
+```
+
+<h3>Exploring the Relation Between Temperature - Attend and Bobblehead Promotion</h3>
+```{r}
+temperature_attend <- ggplot(dataSet, aes(temp, attend)) +
+  geom_point() +
+  geom_smooth(se=FALSE) + 
+  ggtitle("Relation Between Day&Night - Attend without Bobblehead")
+
+temperature_attend
+
+temperature_attend_bobblehead <- ggplot(dataSet, aes(temp, attend, color = bobblehead)) +
+  geom_point() + 
+  geom_smooth(se=FALSE) +
+  ggtitle("Relation Between Day&Night - Attend with Bobblehead")
+
+temperature_attend_bobblehead
+```
+
+<h3>Pearson's Chi Square Tests</h3>
+```{r}
+events %>%
+  select(attend) %>%
+  summary() %>%
+  pander(caption = "Summary of attendance")
+```
+
+<p>* The table above gives the clue about how we can decide the labels in the cut function down below. Total of 4 label is decided according to the min and max values of the table with the aim of keeping the datasets in the labels as large as possible. During the calculations, R Studio gives the following warning: "Chi-squared approximation may be incorrect". In order to avoid this, we repeat the test using bootstrapping.</p>
+
+
+```{r}
+cutEvents <- events %>% 
+  mutate(cutAttend = cut(attend, breaks = 4, 
+                     labels=c("Label1","Label2","Label3","Label4")))
+
+panderOptions("table.split.table", Inf) 
+tbl2 <- xtabs(~ day_of_week+cutEvents$cutAttend, events)
+tbl2 %>% summary %>% pander(caption="Pearson’s Chi-squared test for day_of_week")
+tbl2 %>% chisq.test(simulate.p.value = TRUE, B = 10000) %>% pander(caption = "Pearson's Chi-squared test with simulated p-value(based on 10000 replicates)")
+```
+```{r}
+panderOptions("table.split.table", Inf) 
+tbl2 <- xtabs(~ month+cutEvents$cutAttend, events)
+tbl2 %>% summary %>% pander(caption="Pearson’s Chi-squared test for month")
+tbl2 %>% chisq.test(simulate.p.value = TRUE, B = 10000) %>% pander(caption = "Pearson's Chi-squared test with simulated p-value(based on 10000 replicates)")
+```
+
+```{r}
+panderOptions("table.split.table", Inf) 
+tbl2 <- xtabs(~ day+cutEvents$cutAttend, events)
+tbl2 %>% summary %>% pander(caption="Pearson’s Chi-squared test for day")
+tbl2 %>% chisq.test(simulate.p.value = TRUE, B = 10000) %>% pander(caption = "Pearson's Chi-squared test with simulated p-value(based on 10000 replicates)")
+```
+
+```{r}
+panderOptions("table.split.table", Inf) 
+tbl2 <- xtabs(~ temp+cutEvents$cutAttend, events)
+tbl2 %>% summary %>% pander(caption="Pearson’s Chi-squared test for temp")
+tbl2 %>% chisq.test(simulate.p.value = TRUE, B = 10000) %>% pander(caption = "Pearson's Chi-squared test with simulated p-value(based on 10000 replicates)")
+```
+```{r}
+panderOptions("table.split.table", Inf) 
+tbl2 <- xtabs(~ skies+cutEvents$cutAttend, events)
+tbl2 %>% summary %>% pander(caption="Pearson’s Chi-squared test for skies")
+tbl2 %>% chisq.test(simulate.p.value = TRUE, B = 10000) %>% pander(caption = "Pearson's Chi-squared test with simulated p-value(based on 10000 replicates)")
+```
+
+```{r}
+panderOptions("table.split.table", Inf) 
+tbl2 <- xtabs(~ cap+cutEvents$cutAttend, events)
+tbl2 %>% summary %>% pander(caption="Pearson’s Chi-squared test for cap")
+tbl2 %>% chisq.test(simulate.p.value = TRUE, B = 10000) %>% pander(caption = "Pearson's Chi-squared test with simulated p-value(based on 10000 replicates)")
+```
+
+```{r}
+panderOptions("table.split.table", Inf) 
+tbl2 <- xtabs(~ day_night+cutEvents$cutAttend, events)
+tbl2 %>% summary %>% pander(caption="Pearson’s Chi-squared test for day_night")
+tbl2 %>% chisq.test(simulate.p.value = TRUE, B = 10000) %>% pander(caption = "Pearson's Chi-squared test with simulated p-value(based on 10000 replicates)")
+```
+
+```{r}
+panderOptions("table.split.table", Inf) 
+tbl2 <- xtabs(~ opponent+cutEvents$cutAttend, events)
+tbl2 %>% summary %>% pander(caption="Pearson’s Chi-squared test for opponent")
+tbl2 %>% chisq.test(simulate.p.value = TRUE, B = 10000) %>% pander(caption = "Pearson's Chi-squared test with simulated p-value(based on 10000 replicates)")
+```
+```{r}
+panderOptions("table.split.table", Inf) 
+tbl2 <- xtabs(~ bobblehead+cutEvents$cutAttend, events)
+tbl2 %>% summary %>% pander(caption="Pearson’s Chi-squared test for bobblehead")
+tbl2 %>% chisq.test(simulate.p.value = TRUE, B = 10000) %>% pander(caption = "Pearson's Chi-squared test with simulated p-value(based on 10000 replicates)")
+``` 
+
+```{r}
+panderOptions("table.split.table", Inf) 
+tbl2 <- xtabs(~ shirt+cutEvents$cutAttend, events)
+tbl2 %>% summary %>% pander(caption="Pearson’s Chi-squared test for shirt")
+tbl2 %>% chisq.test(simulate.p.value = TRUE, B = 10000) %>% pander(caption = "Pearson's Chi-squared test with simulated p-value(based on 10000 replicates)")
+```
+
+```{r}
+panderOptions("table.split.table", Inf) 
+tbl2 <- xtabs(~ fireworks+cutEvents$cutAttend, events)
+tbl2 %>% summary %>% pander(caption="Pearson’s Chi-squared test for fireworks")
+tbl2 %>% chisq.test(simulate.p.value = TRUE, B = 10000) %>% pander(caption = "Pearson's Chi-squared test with simulated p-value(based on 10000 replicates)")
+``` 
+
+<p>If the p-value is less than 0.05, we reject the null hypothesis meaning that the variable is not independent from the attend.These variables are as follows: month,opponent,bobblehead.</p>
+
+<h3>Regress Attendance on All Variables </h3>
+```{r}
+complex <- res %>% 
+  update(. ~ .^2)
+
+AIC(res, complex)
+BIC(res, complex)
+```
+
+```{r}
+res <- lm(attend ~ ., events)
+AIC_model <- step(res)
+AIC_model
+```
+
+```{r}
+small <- update(res, . ~ 1) #res is original model, ~ means intersection 
+anova(small, res) #comparation
+# Reference for step function: https://www.rdocumentation.org/packages/stats/versions/3.6.2/topics/step
+# Reference for AIC modeling in RStudio: https://www.rdocumentation.org/packages/stats/versions/3.6.2/topics/AIC
+AIC_model <- step(res)
+AIC_model
+```
+
+*In anova table, if small model is correct, then we expect p-value to be large (>=.05). As it can be seen from the above table p-value (0.0002485) is very small, hence we reject this small model meaning that the sample is still providing some information.
+
