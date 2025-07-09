@@ -17,6 +17,7 @@ This task explores online classification techniques and concept drift handling i
 * Online single classifiers: MLP, KNN, Hoeffding Tree
 * Ensemble methods: Majority Voting (MV), Weighted Majority Voting (WMV), GOOWE
 * Batch classifiers: MLP, KNN, HT (for baseline comparison) 
+
 The system investigates performance under various noise levels and drift conditions, applying evaluation strategies such as prequential accuracy tracking. Concept drift adaptation and diversity measures in ensembles were analyzed based on accuracy outcomes.
 
 
